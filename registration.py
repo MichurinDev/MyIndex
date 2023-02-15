@@ -15,47 +15,45 @@ def Registration(db_path: str, name: str, login: str, password: str) -> int:
 
     # Подключение к БД
     con = sqlite3.connect(db_path)
-
     # Создание курсора
     cur = con.cursor()
 
-    # Пробегаемся по всем строкам
-    for _, loginInDB, _ in \
-            cur.execute(f"SELECT * FROM user_registration_data"):
-        # Если такая пара сайт-логин внесена
-        if loginInDB == MD5Hashing(login):
-            # Выдаем ошибку
-            con.close()
-            return 1
-    else:  # А если нет..
+    try:
+        # Добавляем в БД строку с регданными пользователя
         cur.execute(
             f"INSERT INTO user_registration_data VALUES (?, ?, ?)",
             (name, MD5Hashing(login), MD5Hashing(password))
-            )  # Вносим :)
+            )
         con.commit()
         con.close()
 
         return 0
+    except sqlite3.IntegrityError:
+        # Если пользователь с таким логином уже зарегистрирован
+        return 1
 
 
 def Authentication(db_path: str, login: str, password: str):
     """Имя пользователя - при успешной авторизации
     1 - неверный пароль
     2 - пользователь с таким логином не зарегистрирован"""
+
     # Подключение к БД
     con = sqlite3.connect(db_path)
-
     # Создание курсора
     cur = con.cursor()
 
     # Пробегаемся по всем строкам
     for nameInDB, loginInDB, passwordInDB in \
             cur.execute(f"SELECT * FROM user_registration_data"):
-        # Если такая пара сайт-логин внесена
+        # Если совпадает по логину
         if MD5Hashing(login) == loginInDB:
+            # Если правильный пароль
             if MD5Hashing(password) == passwordInDB:
                 return nameInDB
+            # Емли пароль неверный
             else:
                 return 1
+    # Если такого логина не найдено
     else:
         return 2
