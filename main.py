@@ -1,7 +1,7 @@
 # Пример кода для получения информации по адресу
-from get_post_info_by_address import GetPostInfoByAddress
-from registration import Registration, Authentication
-from address_save_and_delete import SaveAddress, DeleteAddress
+from Moduls.get_post_info_by_address import GetPostInfoByAddress
+from Moduls.registration import Registration, Authentication
+from Moduls.address_save_and_delete import SaveAddress, DeleteAddress
 
 PATH_TO_DB = "./Data/user_data.db"
 
